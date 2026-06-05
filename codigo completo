@@ -12,30 +12,30 @@ ctk.set_default_color_theme("blue")
 
 class App(ctk.CTk):
 
-    def __init__(self):
+    def __init__(gestor_de_estoque):
         super().__init__()
 
-        self.title("Gestor de Estoque")
-        self.geometry("900x600")
+        gestor_de_estoque.title("Gestor de Estoque")
+        gestor_de_estoque.geometry("900x600")
 
-        self.usuario_id = None
+        gestor_de_estoque.usuario_id = None
 
-        self.criar_banco()
+        gestor_de_estoque.criar_banco()
 
-        self.frame_atual = None
+        gestor_de_estoque.frame_atual = None
 
-        self.tela_inicial()
+        gestor_de_estoque.tela_inicial()
 
     # =========================
     # BANCO DE DADOS
     # =========================
 
-    def criar_banco(self):
+    def criar_banco(gestor_de_estoque):
 
-        self.conexao = sqlite3.connect("estoque.db")
-        self.cursor = self.conexao.cursor()
+        gestor_de_estoque.conexao = sqlite3.connect("estoque.db")
+        gestor_de_estoque.cursor = gestor_de_estoque.conexao.cursor()
 
-        self.cursor.execute("""
+        gestor_de_estoque.cursor.execute("""
         CREATE TABLE IF NOT EXISTS usuarios(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT UNIQUE,
@@ -43,7 +43,7 @@ class App(ctk.CTk):
         )
         """)
 
-        self.cursor.execute("""
+        gestor_de_estoque.cursor.execute("""
         CREATE TABLE IF NOT EXISTS itens(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT,
@@ -52,103 +52,103 @@ class App(ctk.CTk):
         )
         """)
 
-        self.conexao.commit()
+        gestor_de_estoque.conexao.commit()
 
     # =========================
     # LIMPAR TELA
     # =========================
 
-    def limpar_tela(self):
+    def limpar_tela(gestor_de_estoque):
 
-        if self.frame_atual:
-            self.frame_atual.destroy()
+        if gestor_de_estoque.frame_atual:
+            gestor_de_estoque.frame_atual.destroy()
 
     # =========================
     # TELA INICIAL
     # =========================
 
-    def tela_inicial(self):
+    def tela_inicial(gestor_de_estoque):
 
-        self.limpar_tela()
+        gestor_de_estoque.limpar_tela()
 
-        self.frame_atual = ctk.CTkFrame(self)
-        self.frame_atual.pack(fill="both", expand=True)
+        gestor_de_estoque.frame_atual = ctk.CTkFrame(gestor_de_estoque)
+        gestor_de_estoque.frame_atual.pack(fill="both", expand=True)
 
         titulo = ctk.CTkLabel(
-            self.frame_atual,
+            gestor_de_estoque.frame_atual,
             text="GESTOR DE ESTOQUE",
             font=("Arial", 30, "bold")
         )
         titulo.pack(pady=50)
 
         btn_login = ctk.CTkButton(
-            self.frame_atual,
+            gestor_de_estoque.frame_atual,
             text="Fazer Login",
             width=250,
-            command=self.tela_login
+            command=gestor_de_estoque.tela_login
         )
-        btn_login.pack(pady=10)
+        btn_login.pack(pady=20)
 
         btn_cadastro = ctk.CTkButton(
-            self.frame_atual,
+            gestor_de_estoque.frame_atual,
             text="Cadastrar Usuário",
             width=250,
-            command=self.tela_cadastro
+            command=gestor_de_estoque.tela_cadastro
         )
-        btn_cadastro.pack(pady=10)
+        btn_cadastro.pack(pady=20)
 
     # =========================
     # TELA CADASTRO
     # =========================
 
-    def tela_cadastro(self):
+    def tela_cadastro(gestor_de_estoque):
 
-        self.limpar_tela()
+        gestor_de_estoque.limpar_tela()
 
-        self.frame_atual = ctk.CTkFrame(self)
-        self.frame_atual.pack(fill="both", expand=True)
+        gestor_de_estoque.frame_atual = ctk.CTkFrame(gestor_de_estoque)
+        gestor_de_estoque.frame_atual.pack(fill="both", expand=True)
 
         ctk.CTkLabel(
-            self.frame_atual,
+            gestor_de_estoque.frame_atual,
             text="CADASTRAR USUÁRIO",
             font=("Arial", 25, "bold")
         ).pack(pady=30)
 
-        self.nome_cadastro = ctk.CTkEntry(
-            self.frame_atual,
+        gestor_de_estoque.nome_cadastro = ctk.CTkEntry(
+            gestor_de_estoque.frame_atual,
             width=300,
             placeholder_text="Usuário"
         )
-        self.nome_cadastro.pack(pady=10)
+        gestor_de_estoque.nome_cadastro.pack(pady=20)
 
-        self.senha_cadastro = ctk.CTkEntry(
-            self.frame_atual,
+        gestor_de_estoque.senha_cadastro = ctk.CTkEntry(
+            gestor_de_estoque.frame_atual,
             width=300,
             placeholder_text="Senha",
             show="*"
         )
-        self.senha_cadastro.pack(pady=10)
+        gestor_de_estoque.senha_cadastro.pack(pady=20)
 
         ctk.CTkButton(
-            self.frame_atual,
+            gestor_de_estoque.frame_atual,
             text="Cadastrar",
-            command=self.cadastrar_usuario
-        ).pack(pady=10)
+            command=gestor_de_estoque.cadastrar_usuario
+        ).pack(pady=20)
 
         ctk.CTkButton(
-            self.frame_atual,
+            gestor_de_estoque.frame_atual,
             text="Voltar",
-            command=self.tela_inicial
-        ).pack(pady=10)
+            command=gestor_de_estoque.tela_inicial
+        ).pack(pady=20)
 
     # =========================
     # CADASTRAR USUÁRIO
     # =========================
 
-    def cadastrar_usuario(self):
+    def cadastrar_usuario(gestor_de_estoque):
 
-        nome = self.nome_cadastro.get()
-        senha = self.senha_cadastro.get()
+        nome = gestor_de_estoque.nome_cadastro.get()
+        senha = gestor_de_estoque.senha_cadastro.get()
 
         if not nome or not senha:
             messagebox.showwarning(
@@ -159,19 +159,19 @@ class App(ctk.CTk):
 
         try:
 
-            self.cursor.execute(
+            gestor_de_estoque.cursor.execute(
                 "INSERT INTO usuarios(nome, senha) VALUES(?, ?)",
                 (nome, senha)
             )
 
-            self.conexao.commit()
+            gestor_de_estoque.conexao.commit()
 
             messagebox.showinfo(
                 "Sucesso",
                 "Usuário cadastrado!"
             )
 
-            self.tela_login()
+            gestor_de_estoque.tela_login()
 
         except sqlite3.IntegrityError:
 
@@ -184,72 +184,72 @@ class App(ctk.CTk):
     # TELA LOGIN
     # =========================
 
-    def tela_login(self):
+    def tela_login(gestor_de_estoque):
 
-        self.limpar_tela()
+        gestor_de_estoque.limpar_tela()
 
-        self.frame_atual = ctk.CTkFrame(self)
-        self.frame_atual.pack(fill="both", expand=True)
+        gestor_de_estoque.frame_atual = ctk.CTkFrame(gestor_de_estoque)
+        gestor_de_estoque.frame_atual.pack(fill="both", expand=True)
 
         ctk.CTkLabel(
-            self.frame_atual,
+            gestor_de_estoque.frame_atual,
             text="LOGIN",
             font=("Arial", 25, "bold")
         ).pack(pady=30)
 
-        self.nome_login = ctk.CTkEntry(
-            self.frame_atual,
+        gestor_de_estoque.nome_login = ctk.CTkEntry(
+            gestor_de_estoque.frame_atual,
             width=300,
             placeholder_text="Usuário"
         )
-        self.nome_login.pack(pady=10)
+        gestor_de_estoque.nome_login.pack(pady=20)
 
-        self.senha_login = ctk.CTkEntry(
-            self.frame_atual,
+        gestor_de_estoque.senha_login = ctk.CTkEntry(
+            gestor_de_estoque.frame_atual,
             width=300,
             placeholder_text="Senha",
             show="*"
         )
-        self.senha_login.pack(pady=10)
+        gestor_de_estoque.senha_login.pack(pady=20)
 
         ctk.CTkButton(
-            self.frame_atual,
+            gestor_de_estoque.frame_atual,
             text="Entrar",
-            command=self.fazer_login
-        ).pack(pady=10)
+            command=gestor_de_estoque.fazer_login
+        ).pack(pady=20)
 
         ctk.CTkButton(
-            self.frame_atual,
+            gestor_de_estoque.frame_atual,
             text="Voltar",
-            command=self.tela_inicial
-        ).pack(pady=10)
+            command=gestor_de_estoque.tela_inicial
+        ).pack(pady=20)
 
     # =========================
     # LOGIN
     # =========================
 
-    def fazer_login(self):
+    def fazer_login(gestor_de_estoque):
 
-        nome = self.nome_login.get()
-        senha = self.senha_login.get()
+        nome = gestor_de_estoque.nome_login.get()
+        senha = gestor_de_estoque.senha_login.get()
 
-        self.cursor.execute(
+        gestor_de_estoque.cursor.execute(
             "SELECT id FROM usuarios WHERE nome=? AND senha=?",
             (nome, senha)
         )
 
-        usuario = self.cursor.fetchone()
+        usuario = gestor_de_estoque.cursor.fetchone()
 
         if usuario:
 
-            self.usuario_id = usuario[0]
+            gestor_de_estoque.usuario_id = usuario[0]
 
             messagebox.showinfo(
                 "Sucesso",
                 "Login realizado!"
             )
 
-            self.tela_estoque()
+            gestor_de_estoque.tela_estoque()
 
         else:
 
@@ -262,135 +262,145 @@ class App(ctk.CTk):
     # TELA ESTOQUE
     # =========================
 
-    def tela_estoque(self):
+    def tela_estoque(gestor_de_estoque):
 
-        self.limpar_tela()
+        gestor_de_estoque.limpar_tela()
 
-        self.frame_atual = ctk.CTkFrame(self)
-        self.frame_atual.pack(fill="both", expand=True)
+        gestor_de_estoque.frame_atual = ctk.CTkFrame(gestor_de_estoque)
+        gestor_de_estoque.frame_atual.pack(fill="both", expand=True)
 
         titulo = ctk.CTkLabel(
-            self.frame_atual,
+            gestor_de_estoque.frame_atual,
             text="CONTROLE DE ESTOQUE",
             font=("Arial", 25, "bold")
         )
-        titulo.pack(pady=10)
+        titulo.pack(pady=20)
 
-        frame_topo = ctk.CTkFrame(self.frame_atual)
-        frame_topo.pack(fill="x", padx=20, pady=10)
+        frame_topo = ctk.CTkFrame(gestor_de_estoque.frame_atual)
+        frame_topo.pack(fill="x", padx=20, pady=20)
 
-        self.entry_produto = ctk.CTkEntry(
+        gestor_de_estoque.entry_produto = ctk.CTkEntry(
             frame_topo,
             placeholder_text="Nome do Produto"
         )
-        self.entry_produto.grid(
+        gestor_de_estoque.entry_produto.grid(
             row=0,
             column=0,
-            padx=10,
-            pady=10
+            padx=20,
+            pady=20
         )
 
-        self.entry_quantidade = ctk.CTkEntry(
+        gestor_de_estoque.entry_quantidade = ctk.CTkEntry(
             frame_topo,
             placeholder_text="Quantidade"
         )
-        self.entry_quantidade.grid(
+        gestor_de_estoque.entry_quantidade.grid(
             row=0,
             column=1,
-            padx=10,
-            pady=10
+            padx=20,
+            pady=20
         )
 
         ctk.CTkButton(
             frame_topo,
             text="Adicionar Produto",
-            command=self.adicionar_produto
+            command=gestor_de_estoque.adicionar_produto
         ).grid(
             row=0,
             column=2,
-            padx=10
+            padx=20
         )
 
-        frame_tabela = ctk.CTkFrame(self.frame_atual)
+        frame_tabela = ctk.CTkFrame(gestor_de_estoque.frame_atual)
         frame_tabela.pack(
             fill="both",
             expand=True,
             padx=20,
-            pady=10
+            pady=20
         )
-
-        self.tabela = ttk.Treeview(
+        
+        style = ttk.Style()
+        style.configure("Treeview",font = ("Arial", 12,"bold"))
+        
+        gestor_de_estoque.tabela = ttk.Treeview(
             frame_tabela,
             columns=("ID", "Nome", "Quantidade"),
             show="headings"
         )
 
-        self.tabela.heading("ID", text="ID")
-        self.tabela.heading("Nome", text="Produto")
-        self.tabela.heading("Quantidade", text="Quantidade")
+        gestor_de_estoque.tabela.heading("ID", text="ID")
+        gestor_de_estoque.tabela.heading("Nome", text="Produto")
+        gestor_de_estoque.tabela.heading("Quantidade", text="Quantidade")
 
-        self.tabela.column("ID", width=80)
-        self.tabela.column("Nome", width=300)
-        self.tabela.column("Quantidade", width=150)
+        gestor_de_estoque.tabela.column("ID", width=80)
+        gestor_de_estoque.tabela.column("Nome", width=300)
+        gestor_de_estoque.tabela.column("Quantidade", width=150)
 
-        self.tabela.pack(
+        gestor_de_estoque.tabela.pack(
             fill="both",
             expand=True
         )
 
-        frame_botoes = ctk.CTkFrame(self.frame_atual)
-        frame_botoes.pack(fill="x", padx=20, pady=10)
+        frame_botoes = ctk.CTkFrame(gestor_de_estoque.frame_atual)
+        frame_botoes.pack(fill="x", padx=20, pady=20)
 
         ctk.CTkButton(
             frame_botoes,
             text="Retirar Quantidade",
-            command=self.retirar_quantidade
+            command=gestor_de_estoque.retirar_quantidade
         ).pack(side="left", padx=5)
 
         ctk.CTkButton(
             frame_botoes,
             text="Remover Produto",
-            command=self.remover_produto
+            command=gestor_de_estoque.remover_produto
         ).pack(side="left", padx=5)
 
         ctk.CTkButton(
             frame_botoes,
             text="Excluir Conta",
             fg_color="red",
-            command=self.excluir_conta
+            command=gestor_de_estoque.excluir_conta
+        ).pack(side="left", padx=5)
+
+        ctk.CTkButton(
+            frame_botoes,
+            text="Registrar Venda",
+            fg_color="green",
+            command=gestor_de_estoque.registrar_venda   
         ).pack(side="left", padx=5)
 
         ctk.CTkButton(
             frame_botoes,
             text="Logout",
-            command=self.logout
+            command=gestor_de_estoque.logout
         ).pack(side="right", padx=5)
 
-        self.carregar_itens()
+        gestor_de_estoque.carregar_itens()
 
     # =========================
     # CARREGAR ITENS
     # =========================
 
-    def carregar_itens(self):
+    def carregar_itens(gestor_de_estoque):
 
-        for item in self.tabela.get_children():
-            self.tabela.delete(item)
+        for item in gestor_de_estoque.tabela.get_children():
+            gestor_de_estoque.tabela.delete(item)
 
-        self.cursor.execute(
+        gestor_de_estoque.cursor.execute(
             """
             SELECT id,nome,quantidade
             FROM itens
             WHERE usuario_id=?
             """,
-            (self.usuario_id,)
+            (gestor_de_estoque.usuario_id,)
         )
 
-        itens = self.cursor.fetchall()
+        itens = gestor_de_estoque.cursor.fetchall()
 
         for item in itens:
 
-            self.tabela.insert(
+            gestor_de_estoque.tabela.insert(
                 "",
                 "end",
                 values=item
@@ -400,13 +410,13 @@ class App(ctk.CTk):
     # ADICIONAR PRODUTO
     # =========================
 
-    def adicionar_produto(self):
+    def adicionar_produto(gestor_de_estoque):
 
-        nome = self.entry_produto.get()
+        nome = gestor_de_estoque.entry_produto.get()
 
         try:
             quantidade = int(
-                self.entry_quantidade.get()
+                gestor_de_estoque.entry_quantidade.get()
             )
         except:
             messagebox.showerror(
@@ -423,7 +433,7 @@ class App(ctk.CTk):
             )
             return
 
-        self.cursor.execute(
+        gestor_de_estoque.cursor.execute(
             """
             INSERT INTO itens
             (nome, quantidade, usuario_id)
@@ -432,24 +442,24 @@ class App(ctk.CTk):
             (
                 nome,
                 quantidade,
-                self.usuario_id
+                gestor_de_estoque.usuario_id
             )
         )
 
-        self.conexao.commit()
+        gestor_de_estoque.conexao.commit()
 
-        self.entry_produto.delete(0, "end")
-        self.entry_quantidade.delete(0, "end")
+        gestor_de_estoque.entry_produto.delete(0, "end")
+        gestor_de_estoque.entry_quantidade.delete(0, "end")
 
-        self.carregar_itens()
+        gestor_de_estoque.carregar_itens()
 
     # =========================
     # RETIRAR QUANTIDADE
     # =========================
 
-    def retirar_quantidade(self):
+    def retirar_quantidade(gestor_de_estoque):
 
-        selecionado = self.tabela.selection()
+        selecionado = gestor_de_estoque.tabela.selection()
 
         if not selecionado:
 
@@ -459,7 +469,7 @@ class App(ctk.CTk):
             )
             return
 
-        dados = self.tabela.item(
+        dados = gestor_de_estoque.tabela.item(
             selecionado
         )["values"]
 
@@ -480,7 +490,7 @@ class App(ctk.CTk):
         except:
             return
 
-        self.cursor.execute(
+        gestor_de_estoque.cursor.execute(
             """
             SELECT quantidade
             FROM itens
@@ -489,7 +499,7 @@ class App(ctk.CTk):
             (id_item,)
         )
 
-        quantidade = self.cursor.fetchone()[0]
+        quantidade = gestor_de_estoque.cursor.fetchone()[0]
 
         if retirada > quantidade:
 
@@ -501,7 +511,7 @@ class App(ctk.CTk):
 
         nova = quantidade - retirada
 
-        self.cursor.execute(
+        gestor_de_estoque.cursor.execute(
             """
             UPDATE itens
             SET quantidade=?
@@ -510,7 +520,7 @@ class App(ctk.CTk):
             (nova, id_item)
         )
 
-        self.conexao.commit()
+        gestor_de_estoque.conexao.commit()
 
         if nova <= 5:
 
@@ -519,15 +529,15 @@ class App(ctk.CTk):
                 "Produto com estoque baixo."
             )
 
-        self.carregar_itens()
+        gestor_de_estoque.carregar_itens()
 
     # =========================
     # REMOVER PRODUTO
     # =========================
 
-    def remover_produto(self):
+    def remover_produto(gestor_de_estoque):
 
-        selecionado = self.tabela.selection()
+        selecionado = gestor_de_estoque.tabela.selection()
 
         if not selecionado:
 
@@ -545,13 +555,13 @@ class App(ctk.CTk):
         if not resposta:
             return
 
-        dados = self.tabela.item(
+        dados = gestor_de_estoque.tabela.item(
             selecionado
         )["values"]
 
         id_item = dados[0]
 
-        self.cursor.execute(
+        gestor_de_estoque.cursor.execute(
             """
             DELETE FROM itens
             WHERE id=?
@@ -559,15 +569,94 @@ class App(ctk.CTk):
             (id_item,)
         )
 
-        self.conexao.commit()
+        gestor_de_estoque.conexao.commit()
 
-        self.carregar_itens()
+        gestor_de_estoque.carregar_itens()
 
+    def registrar_venda(gestor_de_estoque):
+
+        selecionado = gestor_de_estoque.tabela.selection()
+
+        if not selecionado:
+
+            messagebox.showwarning(
+                "Atenção",
+                "Selecione um produto."
+            )
+            return
+
+        dados = gestor_de_estoque.tabela.item(
+            selecionado
+        )["values"]
+
+        id_item = dados[0]
+        nome_produto = dados[1]
+
+        janela = ctk.CTkInputDialog(
+            text="Quantidade vendida:",
+            title="Registrar Venda"
+        )
+
+        valor = janela.get_input()
+
+        if not valor:
+            return
+
+        try:
+            quantidade_vendida = int(valor)
+        except:
+            return
+
+        gestor_de_estoque.cursor.execute(
+            """
+            SELECT quantidade
+            FROM itens
+            WHERE id=?
+            """,
+            (id_item,)
+        )
+
+        quantidade_estoque = gestor_de_estoque.cursor.fetchone()[0]
+
+        if quantidade_vendida > quantidade_estoque:
+
+            messagebox.showerror(
+                "Erro",
+                "Estoque insuficiente para essa venda."
+            )
+            return
+
+        nova_quantidade = quantidade_estoque - quantidade_vendida
+
+        gestor_de_estoque.cursor.execute(
+            """
+            UPDATE itens
+            SET quantidade=?
+            WHERE id=?
+            """,
+            (nova_quantidade, id_item)
+        )
+
+        gestor_de_estoque.conexao.commit()
+
+        messagebox.showinfo(
+            "Venda Registrada",
+            f"Venda de {quantidade_vendida} unidades de '{nome_produto}' registrada com sucesso!"
+        )
+
+        if nova_quantidade <= 5:
+
+            messagebox.showwarning(
+                "Estoque Baixo",
+                "Produto com estoque baixo."
+            )
+
+        gestor_de_estoque.carregar_itens()
     # =========================
     # EXCLUIR CONTA
     # =========================
 
-    def excluir_conta(self):
+    def excluir_conta(gestor_de_estoque):
 
         resposta = messagebox.askyesno(
             "Excluir Conta",
@@ -577,50 +666,50 @@ class App(ctk.CTk):
         if not resposta:
             return
 
-        self.cursor.execute(
+        gestor_de_estoque.cursor.execute(
             """
             DELETE FROM itens
             WHERE usuario_id=?
             """,
-            (self.usuario_id,)
+            (gestor_de_estoque.usuario_id,)
         )
 
-        self.cursor.execute(
+        gestor_de_estoque.cursor.execute(
             """
             DELETE FROM usuarios
             WHERE id=?
             """,
-            (self.usuario_id,)
+            (gestor_de_estoque.usuario_id,)
         )
 
-        self.conexao.commit()
+        gestor_de_estoque.conexao.commit()
 
         messagebox.showinfo(
             "Sucesso",
             "Conta excluída."
         )
 
-        self.usuario_id = None
+        gestor_de_estoque.usuario_id = None
 
-        self.tela_inicial()
+        gestor_de_estoque.tela_inicial()
 
     # =========================
     # LOGOUT
     # =========================
 
-    def logout(self):
+    def logout(gestor_de_estoque):
 
-        self.usuario_id = None
+        gestor_de_estoque.usuario_id = None
 
-        self.tela_inicial()
+        gestor_de_estoque.tela_inicial()
 
     # =========================
     # FECHAR PROGRAMA
     # =========================
 
-    def destroy(self):
+    def destroy(gestor_de_estoque):
 
-        self.conexao.close()
+        gestor_de_estoque.conexao.close()
 
         super().destroy()
 
