@@ -22,7 +22,6 @@ class App(ctk.CTk):
 
         gestor_de_estoque.tela_inicial()
 
-
     def criar_banco(gestor_de_estoque):
 
         gestor_de_estoque.conexao = sqlite3.connect("estoque.db")
@@ -45,14 +44,25 @@ class App(ctk.CTk):
         )
         """)
 
-        gestor_de_estoque.conexao.commit()
+        gestor_de_estoque.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS vendas(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            item_id INTEGER,
+            nome TEXT,
+            quantidade_vendida INTEGER,
+            usuario_id INTEGER NULL,
+                                         
+            FOREIGN KEY (item_id) REFERENCES itens(id),
+            FOREIGN KEY (usuario_id) REFERENCES usuarios(id)                           
+        )
+        """)
 
+        gestor_de_estoque.conexao.commit()
 
     def limpar_tela(gestor_de_estoque):
 
         if gestor_de_estoque.frame_atual:
             gestor_de_estoque.frame_atual.destroy()
-
 
     def tela_inicial(gestor_de_estoque):
 
@@ -123,7 +133,6 @@ class App(ctk.CTk):
             text="Voltar",
             command=gestor_de_estoque.tela_inicial
         ).pack(pady=20)
-
 
     def cadastrar_usuario(gestor_de_estoque):
 
@@ -284,11 +293,33 @@ class App(ctk.CTk):
             pady=20
         )
         
+        frame_tabela.grid_rowconfigure(0, weight=1)
+        
+        frame_tabela.grid_columnconfigure(
+            0,
+            weight=1
+        )
+
+        frame_tabela.grid_columnconfigure(
+            1,
+             weight=1
+        )
+        frame_tabela.grid_rowconfigure(0, weight=1)
+
+        frame_estoque = ctk.CTkFrame(frame_tabela)
+
+        frame_estoque.grid(
+            row=0,
+            column=0,
+            sticky="nsew",
+            padx=10
+        )
+
         style = ttk.Style()
         style.configure("Treeview",font = ("Arial", 12,"bold"))
         
         gestor_de_estoque.tabela = ttk.Treeview(
-            frame_tabela,
+            frame_estoque,
             columns=("ID", "Nome", "Quantidade"),
             show="headings"
         )
@@ -296,15 +327,54 @@ class App(ctk.CTk):
         gestor_de_estoque.tabela.heading("ID", text="ID")
         gestor_de_estoque.tabela.heading("Nome", text="Produto")
         gestor_de_estoque.tabela.heading("Quantidade", text="Quantidade")
+        
+        gestor_de_estoque.tabela.pack(fill="both",expand=True)
+
+        frame_vendas = ctk.CTkFrame(frame_tabela)
+        frame_vendas.grid(
+            row=0,
+            column=1,
+            sticky= "nsew",
+            padx=10
+        )
+
+        gestor_de_estoque.tabela_vendas = ttk.Treeview(
+        frame_vendas,
+        columns=(
+            "ID",
+            "Produto",
+            "Quantidade"
+        ),
+        show="headings"
+        )
+
+        gestor_de_estoque.tabela_vendas.heading(
+            "ID",
+            text="ID"
+        )
+
+        gestor_de_estoque.tabela_vendas.heading(
+            "Produto",
+            text="Produto"
+        )
+
+        gestor_de_estoque.tabela_vendas.heading(
+            "Quantidade",
+            text="Quantidade"
+        )
+
+        gestor_de_estoque.tabela_vendas.pack(
+            fill="both",
+            expand=True
+        )
+        
+        gestor_de_estoque.tabela_vendas.column("ID", width=80)
+        gestor_de_estoque.tabela_vendas.column("Produto", width=200)
+        gestor_de_estoque.tabela_vendas.column("Quantidade", width=120)
 
         gestor_de_estoque.tabela.column("ID", width=80)
         gestor_de_estoque.tabela.column("Nome", width=300)
         gestor_de_estoque.tabela.column("Quantidade", width=150)
-
-        gestor_de_estoque.tabela.pack(
-            fill="both",
-            expand=True
-        )
 
         frame_botoes = ctk.CTkFrame(gestor_de_estoque.frame_atual)
         frame_botoes.pack(fill="x", padx=20, pady=20)
@@ -342,7 +412,33 @@ class App(ctk.CTk):
         ).pack(side="top", padx=5, pady=5)
 
         gestor_de_estoque.carregar_itens()
+        gestor_de_estoque.carregar_vendas()
 
+    def carregar_vendas(gestor_de_estoque):
+
+        for item in gestor_de_estoque.tabela_vendas.get_children():
+            gestor_de_estoque.tabela_vendas.delete(item)
+
+        gestor_de_estoque.cursor.execute(
+            """
+            SELECT
+                id,
+                nome,
+                quantidade_vendida
+            FROM vendas
+            ORDER BY id DESC
+            """
+        )
+
+        vendas = gestor_de_estoque.cursor.fetchall()
+
+        for venda in vendas:
+
+            gestor_de_estoque.tabela_vendas.insert(
+                "",
+                "end",
+                values=venda
+            )
 
     def carregar_itens(gestor_de_estoque):
 
@@ -365,7 +461,6 @@ class App(ctk.CTk):
                 "end",
                 values=item
             )
-
 
     def adicionar_produto(gestor_de_estoque):
 
@@ -583,8 +678,25 @@ class App(ctk.CTk):
             SET quantidade=?
             WHERE id=?
             """,
-            (nova_quantidade, id_item)
+            (nova_quantidade, id_item),
         )
+        gestor_de_estoque.cursor.execute(
+            """
+            INSERT INTO vendas
+            (
+                nome,
+                quantidade_vendida,
+                usuario_id
+            )
+            VALUES (?, ?, ?)
+            """,
+            (
+                nome_produto,
+                quantidade_vendida,
+                gestor_de_estoque.usuario_id
+            )
+        )
+
 
         gestor_de_estoque.conexao.commit()
 
@@ -601,8 +713,8 @@ class App(ctk.CTk):
             )
 
         gestor_de_estoque.carregar_itens()
+        gestor_de_estoque.carregar_vendas()
     
-
     def excluir_conta(gestor_de_estoque):
 
         resposta = messagebox.askyesno(
@@ -645,7 +757,6 @@ class App(ctk.CTk):
         gestor_de_estoque.usuario_id = None
 
         gestor_de_estoque.tela_inicial()
-
     
     def destroy(gestor_de_estoque):
 
