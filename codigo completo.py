@@ -680,6 +680,9 @@ class App(ctk.CTk):
             """,
             (nova_quantidade, id_item),
         )
+        gestor_de_estoque.conexao.commit()
+
+
         gestor_de_estoque.cursor.execute(
             """
             INSERT INTO vendas
@@ -699,18 +702,6 @@ class App(ctk.CTk):
 
 
         gestor_de_estoque.conexao.commit()
-
-        messagebox.showinfo(
-            "Venda Registrada",
-            f"Venda de {quantidade_vendida} unidades de '{nome_produto}' registrada com sucesso!"
-        )
-
-        if nova_quantidade <= 5:
-
-            messagebox.showwarning(
-                "Estoque Baixo",
-                "Produto com estoque baixo."
-            )
 
         gestor_de_estoque.carregar_itens()
         gestor_de_estoque.carregar_vendas()
@@ -763,7 +754,6 @@ class App(ctk.CTk):
         gestor_de_estoque.conexao.close()
 
         super().destroy()
-
 
 app = App()
 app.mainloop()
