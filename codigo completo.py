@@ -285,6 +285,16 @@ class App(ctk.CTk):
             padx=20
         )
 
+        ctk.CTkButton(
+            frame_topo,
+            text="Registrar entradas",
+            command=gestor_de_estoque.adicionar_quantidade
+        ).grid(
+            row=0,
+            column=3,
+            padx=20
+        )
+
         frame_tabela = ctk.CTkFrame(gestor_de_estoque.frame_atual)
         frame_tabela.pack(
             fill="both",
@@ -705,7 +715,77 @@ class App(ctk.CTk):
 
         gestor_de_estoque.carregar_itens()
         gestor_de_estoque.carregar_vendas()
-    
+
+    def adicionar_quantidade(gestor_de_estoque):
+
+
+        selecionado = gestor_de_estoque.tabela.selection()
+
+        if not selecionado:
+
+            messagebox.showwarning(
+                "Atenção",
+                "Selecione um produto."
+            )
+            return
+
+        dados = gestor_de_estoque.tabela.item(
+            selecionado
+        )["values"]
+
+        id_item = dados[0]
+        nome_produto = dados[1]
+
+        janela = ctk.CTkInputDialog(
+            text="Quantidade a adicionar:",
+            title="Adicionar Estoque"
+        )
+
+        valor = janela.get_input()
+
+        if not valor:
+            return
+
+        try:
+            quantidade_adicionar = int(valor)
+        except:
+            messagebox.showerror(
+                "Erro",
+                "Digite um número válido."
+            )
+            return
+
+        gestor_de_estoque.cursor.execute(
+            """
+            SELECT quantidade
+            FROM itens
+            WHERE id=?
+            """,
+            (id_item,)
+        )
+
+        quantidade_atual = gestor_de_estoque.cursor.fetchone()[0]
+
+        nova_quantidade = quantidade_atual + quantidade_adicionar
+
+        gestor_de_estoque.cursor.execute(
+            """
+            UPDATE itens
+            SET quantidade=?
+            WHERE id=?
+            """,
+            (nova_quantidade, id_item)
+        )
+
+        gestor_de_estoque.conexao.commit()
+
+        messagebox.showinfo(
+            "Sucesso",
+            f"Foram adicionadas {quantidade_adicionar} unidades ao produto '{nome_produto}'."
+        )
+
+        gestor_de_estoque.carregar_itens() 
+
     def excluir_conta(gestor_de_estoque):
 
         resposta = messagebox.askyesno(
